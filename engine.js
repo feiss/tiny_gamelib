@@ -28,6 +28,17 @@ const mouse = {
     prevy: 0,
 };
 
+let palette = [
+    '#FF4136',
+    '#FF851B',
+    '#FFDC00',
+    '#2ECC40',
+    '#0074D9',
+    '#B10DC9',
+    '#7FDBFF',
+    '#F012BE'
+];
+
 function __init() {
     console.log('GE init');
     canvas = document.createElement('canvas');
@@ -124,10 +135,10 @@ function __mousemove(ev) {
 }
 
 function fill_rect(x, y, w, h, color) {
-    ctx.fillStyle = color;
+    ctx.fillStyle = palette[color];
     ctx.fillRect(x, y, w, h);
 }
 function draw_text(text, x, y, color) {
-    ctx.fillStyle = color;
+    ctx.fillStyle = palette[color];
     ctx.fillText(text, x, y);
 }
