@@ -53,7 +53,7 @@ function __init() {
     ctx = offcanvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
-    ctx.font = '8px Silkscreen';
+    ctx.font = '8px pixelfont';
     document.body.appendChild(canvas);
 
     __preload();
