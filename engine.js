@@ -5,7 +5,9 @@ window.addEventListener("keyup", __keyup);
 window.addEventListener("mousedown", __mousedown);
 window.addEventListener("mouseup", __mouseup);
 window.addEventListener("mousemove", __mousemove);
-
+document.addEventListener("contextmenu", function (event) {
+    event.preventDefault();
+});
 
 let canvas, canvas_ctx, offcanvas, ctx;
 const SCALE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--SCALE'));
@@ -51,16 +53,7 @@ function __init() {
     ctx = offcanvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
-    ctx.fillStyle = '#300';
-    ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = '#fff';
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(W, H);
-    ctx.stroke();
-
-    canvas_ctx.drawImage(offcanvas, 0, 0);
-
+    ctx.font = '8px Silkscreen';
     document.body.appendChild(canvas);
 
     __preload();
@@ -76,7 +69,10 @@ function __preload() {
         assets[file] = img;
         img.onload = () => {
             loaded++;
-            console.log("loaded " + loaded + '/' + total);
+            window.requestAnimationFrame(() => {
+                loading(loaded / total)
+                canvas_ctx.drawImage(offcanvas, 0, 0);
+            });
             if (loaded == total) {
                 __end_preload();
             }
@@ -120,9 +116,13 @@ function __mousedown(ev) {
 }
 
 function __mouseup(ev) {
-    mouse.left = !(ev.button == 0);
-    mouse.middle = !(ev.button == 1);
-    mouse.right = !(ev.button == 2);
+    if (ev.button == 0) {
+        mouse.left = false;
+    } else if (ev.button == 1) {
+        mouse.middle = false;
+    } else if (ev.button == 2) {
+        mouse.right = false;
+    }
 }
 
 function __mousemove(ev) {
@@ -138,7 +138,12 @@ function fill_rect(x, y, w, h, color) {
     ctx.fillStyle = palette[color];
     ctx.fillRect(x, y, w, h);
 }
+
 function draw_text(text, x, y, color) {
     ctx.fillStyle = palette[color];
     ctx.fillText(text, x, y);
+}
+
+function draw_image(img, x, y) {
+    ctx.drawImage(assets[img], x, y);
 }

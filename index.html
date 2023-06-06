@@ -7,6 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
     <style>
+        @font-face {
+            font-family: 'Silkscreen';
+            src: url('assets/Silkscreen-Regular.ttf') format('truetype');
+        }
+
         :root {
             --SCALE: 3;
         }
@@ -15,6 +20,12 @@
             background-color: black;
             overflow: hidden;
             padding: 2rem;
+        }
+
+        #preload_font {
+            font: 14px 'Silkscreen';
+            color: white;
+            display: none;
         }
 
         canvas {
@@ -28,6 +39,7 @@
 </head>
 
 <body>
+    <div id="preload_font">hola</div>
     <script src="engine.js"></script>
     <script src="game.js"></script>
 </body>
