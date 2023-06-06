@@ -1,11 +1,32 @@
 document.addEventListener("DOMContentLoaded", __init);
 window.addEventListener("resize", __resize);
+window.addEventListener("keydown", __keydown);
+window.addEventListener("keyup", __keyup);
+window.addEventListener("mousedown", __mousedown);
+window.addEventListener("mouseup", __mouseup);
+window.addEventListener("mousemove", __mousemove);
+
 
 let canvas, canvas_ctx, offcanvas, ctx;
+const SCALE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--SCALE'));
 const W = 320;
 const H = 200;
 
-let sprites = {};
+let assets = {};
+const keys = {};
+const mouse = {
+    left: false,
+    middle: false,
+    right: false,
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    downx: 0,
+    downy: 0,
+    prevx: 0,
+    prevy: 0,
+};
 
 function __init() {
     console.log('GE init');
@@ -41,7 +62,7 @@ function __preload() {
 
     for (const file of files) {
         const img = new Image();
-        sprites[file] = img;
+        assets[file] = img;
         img.onload = () => {
             loaded++;
             console.log("loaded " + loaded + '/' + total);
@@ -55,14 +76,58 @@ function __preload() {
 }
 
 function __end_preload() {
-    console.log("end preload");
+    start();
+    window.requestAnimationFrame(__loop);
 }
 
-function __loop() {
+function __loop(t) {
+    window.requestAnimationFrame(__loop);
+    loop(t);
+    canvas_ctx.drawImage(offcanvas, 0, 0);
 
 }
 
 
 function __resize() {
     console.log('resize');
+}
+
+function __keydown(ev) {
+    keys[ev.key] = true;
+}
+
+function __keyup(ev) {
+    keys[ev.key] = false;
+}
+
+function __mousedown(ev) {
+    mouse.left = ev.button == 0;
+    mouse.middle = ev.button == 1;
+    mouse.right = ev.button == 2;
+    mouse.downx = Math.floor((ev.x - canvas.offsetLeft) / SCALE);
+    mouse.downy = Math.floor((ev.y - canvas.offsetTop) / SCALE);
+}
+
+function __mouseup(ev) {
+    mouse.left = !(ev.button == 0);
+    mouse.middle = !(ev.button == 1);
+    mouse.right = !(ev.button == 2);
+}
+
+function __mousemove(ev) {
+    mouse.prevx = mouse.x;
+    mouse.prevy = mouse.y;
+    mouse.x = Math.floor((ev.x - canvas.offsetLeft) / SCALE);
+    mouse.y = Math.floor((ev.y - canvas.offsetTop) / SCALE);
+    mouse.vx = mouse.x - mouse.prevx;
+    mouse.vy = mouse.y - mouse.prevy;
+}
+
+function fill_rect(x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+}
+function draw_text(text, x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
 }

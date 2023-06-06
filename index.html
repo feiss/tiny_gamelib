@@ -7,6 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
     <style>
+        :root {
+            --SCALE: 3;
+        }
+
         body {
             background-color: black;
             overflow: hidden;
@@ -16,8 +20,8 @@
         canvas {
             image-rendering: pixelated;
             display: block;
-            width: 640px;
-            height: 400px;
+            width: calc(320px * var(--SCALE));
+            height: calc(200px * var(--SCALE));
             margin: 0 auto;
         }
     </style>
