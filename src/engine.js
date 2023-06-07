@@ -9,11 +9,16 @@ document.addEventListener("contextmenu", function (event) {
     event.preventDefault();
 });
 
-let canvas, canvas_ctx, offcanvas, ctx;
+for (const event of ['start', 'preload', 'keydown', 'keyup']) {
+    if (!window[event]) window[event] = () => { };
+}
+
+let canvas, canvas_ctx, offcanvas, ctx, ctx_pixel;
 const SCALE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--SCALE'));
 const W = 320;
 const H = 200;
 const floor = Math.floor;
+const rnd = Math.random;
 
 let assets = {};
 let sprites = {};
@@ -36,19 +41,9 @@ const mouse = {
     prevy: 0,
 };
 
-let palette = [
-    '#FF4136',
-    '#FF851B',
-    '#FFDC00',
-    '#2ECC40',
-    '#0074D9',
-    '#B10DC9',
-    '#7FDBFF',
-    '#F012BE'
-];
+let palette, palette_rgb, palette_rgb_index;
 
 function __init() {
-    console.log('GE init');
     canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
@@ -59,9 +54,21 @@ function __init() {
     ctx = offcanvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
+    ctx_pixel = ctx.createImageData(1, 1);
+
     ctx.font = '8px pixelfont';
     document.body.appendChild(canvas);
 
+    set_palette([
+        '#FF4136',
+        '#FF851B',
+        '#FFDC00',
+        '#2ECC40',
+        '#0074D9',
+        '#B10DC9',
+        '#7FDBFF',
+        '#F012BE'
+    ]);
     __preload();
 }
 
@@ -113,15 +120,16 @@ function __loop(t) {
 
 
 function __resize() {
-    console.log('resize');
 }
 
 function __keydown(ev) {
     keys[ev.key] = true;
+    keydown(ev.key);
 }
 
 function __keyup(ev) {
     keys[ev.key] = false;
+    keyup(ev.key);
 }
 
 function __mousedown(ev) {
@@ -155,6 +163,29 @@ function __mousemove(ev) {
     mouse.y = floor((ev.y - canvas.offsetTop) / SCALE);
     mouse.vx = mouse.x - mouse.prevx;
     mouse.vy = mouse.y - mouse.prevy;
+}
+
+function hex2rgb(hex) {
+    hex = hex.substr(1);
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    const dec = parseInt(hex, 16);
+    const red = (dec >> 16) & 255;
+    const green = (dec >> 8) & 255;
+    const blue = dec & 255;
+    return [red, green, blue];
+}
+
+function set_palette(pal) {
+    palette = pal;
+    palette_rgb = [];
+    palette_rgb_index = [];
+    for (const col of pal) {
+        const rgb = hex2rgb(col);
+        palette_rgb.push(rgb);
+        palette_rgb_index.push(rgb[0] + rgb[1] + rgb[2]});
+}
 }
 
 function fill_rect(x, y, w, h, color) {
@@ -230,4 +261,16 @@ function draw_sprite(name, x, y) {
         y = spr.y;
     }
     ctx.drawImage(assets[spr.animations[spr.animation].frames[spr.frame]], x - spr.anchor_x, y - spr.anchor_y);
+}
+
+function pset(x, y, color) {
+    ctx.fillStyle = palette[color];
+    ctx.fillRect(x, y, 1, 1);
+}
+
+
+function pget(x, y) {
+    const pixel = ctx.getImageData(x, y, 1, 1).data;
+    const index = pixel[0] + pixel[1] + pixel[2];
+    palette_rgb_index.indexOf(index);
 }

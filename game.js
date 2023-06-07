@@ -1,6 +1,6 @@
 
 function preload() {
-    palette = [
+    set_palette([
         '#0d2b45',
         '#203c56',
         '#544e68',
@@ -9,7 +9,7 @@ function preload() {
         '#ffaa5e',
         '#ffd4a3',
         '#ffecd6',
-    ];
+    ]);
 
     return [
         'sprites.png',
@@ -38,17 +38,23 @@ function start() {
 }
 
 function loop(t, dt) {
-    fill_rect(0, 0, W, H, 0);
-    const w = W / palette.length;
-    for (let i = 0; i < palette.length; i++) {
-        fill_rect(i * w, 0, w, 2, i);
-    }
+    // fill_rect(0, 0, W, H, 0);
+    // const w = W / palette.length;
+    // for (let i = 0; i < palette.length; i++) {
+    //     fill_rect(i * w, 0, w, 2, i);
+    // }
 
-    if (mouse.left) {
-        draw_text(mouse.x + ',' + mouse.y, 10, 20, 6);
-        // draw_image('screen.png', mouse.x, mouse.y);
-        update_sprite('numbers', dt);
+    // if (mouse.left) {
+    //     draw_text(mouse.x + ',' + mouse.y, 10, 20, 6);
+    //     // draw_image('screen.png', mouse.x, mouse.y);
+    //     update_sprite('numbers', dt);
 
-        draw_sprite('numbers', mouse.x, mouse.y);
+    //     draw_sprite('numbers', mouse.x, mouse.y);
+    // }
+
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            pset(x, y, floor(rnd() * palette.length));
+        }
     }
 }
