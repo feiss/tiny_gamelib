@@ -22,6 +22,10 @@ function preload() {
         '2.png',
         '3.png',
         '4.png',
+        'sonic0.png',
+        'sonic1.png',
+        'sonic2.png',
+        'sonic3.png',
     ];
 }
 
@@ -31,10 +35,9 @@ function loading(progress) {
 }
 
 function start() {
-    new_sprite('numbers', {
-        'count': { frames: ['1.png', '2.png', '3.png', '4.png'], fps: 10 },
-        'count2': { frames: ['1.png', '2.png'], fps: 1 }
-    });
+    new_sprite('sonic', {
+        'count': { frames: ['sonic0.png', 'sonic1.png', 'sonic2.png', 'sonic3.png'], fps: 25 },
+    }, 0.5, 0.5);
 }
 
 function loop(t, dt) {
