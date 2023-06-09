@@ -1,4 +1,4 @@
-# TINY GAMELIB for Game Jams
+# Tiny Gamelib for Game Jams
 
 A tiny javascript library for making 2D games, with these features:
 
@@ -15,15 +15,16 @@ A tiny javascript library for making 2D games, with these features:
 ## User entry functions
 
 in game.js, implement the following functions and they will be called when needed. 
-You don't need to hook anything.
+You don't need to hook anything. Only `loop()` is mandatory, the rest of functions are optional.
 
 ```javascript
-function preload() // optional
-function loading(progress) // progress goes from 0 - 1
-function start() // optional
 
-function keydown(key_name) // optional
-function keyup(key_name) // optional
+function preload() 
+function loading(progress) 
+function start() 
+
+function keydown(key_name) 
+function keyup(key_name) 
 
 function loop(time, dt)
 ```

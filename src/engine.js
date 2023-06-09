@@ -9,7 +9,7 @@ document.addEventListener("contextmenu", function (event) {
     event.preventDefault();
 });
 
-for (const event of ['start', 'preload', 'keydown', 'keyup']) {
+for (const event of ['start', 'loading', 'preload', 'keydown', 'keyup']) {
     if (!window[event]) window[event] = () => { };
 }
 
