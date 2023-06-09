@@ -108,8 +108,11 @@ function __end_preload() {
     start();
     canvas_ctx.drawImage(offcanvas, 0, 0);
     window.requestAnimationFrame(__loop);
+    __start_t = performance.now();
 }
 
+let __frame = 0;
+let __start_t = 0;
 let __prev_t;
 
 function __loop(t) {
@@ -127,7 +130,15 @@ function __loop(t) {
 
     canvas_ctx.drawImage(offcanvas, 0, 0);
 
+    if ((performance.now() - __start_t) / __frame < 17) {
+        canvas_ctx.fillStyle = "#0f0";
+    } else {
+        canvas_ctx.fillStyle = "#f00";
+    }
+    canvas_ctx.fillRect(2, 2, 5, 5);
+
     window.requestAnimationFrame(__loop);
+    __frame++;
 }
 
 
@@ -203,10 +214,22 @@ function fill_rect(x, y, w, h, color) {
     ctx.fillStyle = palette[color];
     ctx.fillRect(x, y, w, h);
 }
+function draw_rect(x, y, w, h, color) {
+    ctx.strokeStyle = palette[color];
+    ctx.strokeRect(x + 0.5, y + 0.5, w, h);
+}
 
 function draw_text(text, x, y, color) {
     ctx.fillStyle = palette[color];
     ctx.fillText(text, x, y);
+}
+
+function draw_circle(x, y, r, color) {
+    ctx.fillStyle = palette[color];
+    const incr = 1 / r;
+    for (let a = incr; a < Math.PI * 2; a += incr) {
+        ctx.fillRect(floor(x + Math.cos(a) * r), floor(y + Math.sin(a) * r), 1, 1);
+    }
 }
 
 function draw_image(img, x, y) {
@@ -286,41 +309,41 @@ function pget(x, y) {
 }
 
 function draw_line(x1, y1, x2, y2, color) {
-    ctx.strokeStyle = palette[color];
+    // ctx.strokeStyle = palette[color];
     // ctx.beginPath();
     // ctx.moveTo(x1, y1);
     // ctx.lineTo(x2, y2);
     // ctx.stroke();
-    bresenham(x1, y1, x2, y2, color);
+    __bresenham(x1, y1, x2, y2, color);
 }
 
 
-function bresenham(x0, y0, x1, y1, color) {
+function __bresenham(x1, y1, x2, y2, color) {
     let tmp;
-    let steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
+    let steep = Math.abs(y2 - y1) > Math.abs(x2 - x1);
     if (steep) {
-        tmp = x0;
-        x0 = y0;
-        y0 = tmp;
         tmp = x1;
         x1 = y1;
         y1 = tmp;
+        tmp = x2;
+        x2 = y2;
+        y2 = tmp;
     }
 
     let sign = 1;
-    if (x0 > x1) {
+    if (x1 > x2) {
         sign = -1;
-        x0 *= -1;
         x1 *= -1;
+        x2 *= -1;
     }
 
-    let dx = x1 - x0;
-    let dy = Math.abs(y1 - y0);
+    let dx = x2 - x1;
+    let dy = Math.abs(y2 - y1);
     let err = ((dx / 2));
-    let ystep = y0 < y1 ? 1 : -1;
-    let y = y0;
+    let ystep = y1 < y2 ? 1 : -1;
+    let y = y1;
 
-    for (let x = 0; x <= x1; x++) {
+    for (let x = x1; x <= x2; x++) {
         if (!(steep ? pset(y, sign * x, color) : pset(sign * x, y, color)));
         err = (err - dy);
         if (err < 0) {
