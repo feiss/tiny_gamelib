@@ -57,6 +57,8 @@ const mouse = {
 };
 ```
 
+## Global functions
+
 ```js
 // `pal` is an array with '#rrggbb' colors
 // `color` is an integer for the palette index
