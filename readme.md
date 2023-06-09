@@ -17,21 +17,21 @@ A tiny javascript library for making 2D games, with these features:
 in `game.js`, implement the following functions and they will be called when needed. 
 You don't need to hook anything. Only `loop()` is mandatory, the rest of functions are optional.
 
-```
+```js
 
-function preload() 
-function loading(progress) 
-function start() 
+function preload();
+function loading(progress);
+function start();
 
-function keydown(key_name) 
-function keyup(key_name) 
+function keydown(key_name);
+function keyup(key_name);
 
-function loop(time, dt)
+function loop(time, dt);
 ```
 
 ## Global constants and variables
 
-```
+```js
 const SCALE; // set it in index.html
 const W;
 const H;
@@ -57,19 +57,19 @@ const mouse = {
 };
 ```
 
-```
-function set_palette(pal) 
-function fill_rect(x, y, w, h, color) 
-function draw_rect(x, y, w, h, color) 
-function draw_text(text, x, y, color) 
-function draw_circle(x, y, r, color) 
-function fill_circle(cx, cy, r, color) 
-function draw_image(img, x, y) 
-function new_sprite(name, animations, anchor_x, anchor_y) 
-function update_sprite(name, dt) 
-function set_sprite_animation(sprite, animation) 
-function draw_sprite(name, x, y) 
-function pset(x, y, color) 
-function pget(x, y) 
-function draw_line(x1, y1, x2, y2, color) 
+```js
+function set_palette(pal) ;
+function fill_rect(x, y, w, h, color) ;
+function draw_rect(x, y, w, h, color) ;
+function draw_text(text, x, y, color) ;
+function draw_circle(x, y, r, color) ;
+function fill_circle(cx, cy, r, color) ;
+function draw_image(img, x, y) ;
+function new_sprite(name, animations, anchor_x, anchor_y) ;
+function update_sprite(name, dt) ;
+function set_sprite_animation(sprite, animation) ;
+function draw_sprite(name, x, y) ;
+function pset(x, y, color) ;
+function pget(x, y) ;
+function draw_line(x1, y1, x2, y2, color) ;
 ```

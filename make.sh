@@ -22,21 +22,21 @@ echo "
 in \`game.js\`, implement the following functions and they will be called when needed. 
 You don't need to hook anything. Only \`loop()\` is mandatory, the rest of functions are optional.
 
-\`\`\`
+\`\`\`js
 
-function preload() 
-function loading(progress) 
-function start() 
+function preload();
+function loading(progress);
+function start();
 
-function keydown(key_name) 
-function keyup(key_name) 
+function keydown(key_name);
+function keyup(key_name);
 
-function loop(time, dt)
+function loop(time, dt);
 \`\`\`
 
 ## Global constants and variables
 
-\`\`\`
+\`\`\`js
 const SCALE; // set it in index.html
 const W;
 const H;
@@ -62,6 +62,6 @@ const mouse = {
 };
 \`\`\`
 
-\`\`\`" >> readme.md
-cat src/engine.js | grep -e "^function\s[a-z]" |sed 's/^\(.*\).$/\1/' >> readme.md
+\`\`\`js" >> readme.md
+cat src/engine.js | grep -e "^function\s[a-z]" |sed 's/^\(.*\).$/\1;/' >> readme.md
 echo "\`\`\`" >> readme.md
