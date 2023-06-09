@@ -19,10 +19,10 @@ echo "
 
 ## User entry functions
 
-in game.js, implement the following functions and they will be called when needed. 
+in \`game.js\`, implement the following functions and they will be called when needed. 
 You don't need to hook anything. Only \`loop()\` is mandatory, the rest of functions are optional.
 
-\`\`\`javascript
+\`\`\`
 
 function preload() 
 function loading(progress) 
@@ -36,7 +36,7 @@ function loop(time, dt)
 
 ## Global constants and variables
 
-\`\`\`javascript
+\`\`\`
 const SCALE; // set it in index.html
 const W;
 const H;
@@ -62,6 +62,6 @@ const mouse = {
 };
 \`\`\`
 
-\`\`\`javascript" >> readme.md
+\`\`\`" >> readme.md
 cat src/engine.js | grep -e "^function\s[a-z]" |sed 's/^\(.*\).$/\1/' >> readme.md
 echo "\`\`\`" >> readme.md
