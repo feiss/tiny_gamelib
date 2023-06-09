@@ -14,10 +14,10 @@ A tiny javascript library for making 2D games, with these features:
 
 ## User entry functions
 
-in game.js, implement the following functions and they will be called when needed. 
+in `game.js`, implement the following functions and they will be called when needed. 
 You don't need to hook anything. Only `loop()` is mandatory, the rest of functions are optional.
 
-```javascript
+```
 
 function preload() 
 function loading(progress) 
@@ -31,7 +31,7 @@ function loop(time, dt)
 
 ## Global constants and variables
 
-```javascript
+```
 const SCALE; // set it in index.html
 const W;
 const H;
@@ -57,7 +57,7 @@ const mouse = {
 };
 ```
 
-```javascript
+```
 function set_palette(pal) 
 function fill_rect(x, y, w, h, color) 
 function draw_rect(x, y, w, h, color) 
