@@ -49,11 +49,20 @@ function __init() {
     canvas.height = H;
     offcanvas = new OffscreenCanvas(W, H);
 
-    canvas_ctx = canvas.getContext('2d');
+    canvas_ctx = canvas.getContext('2d', {
+        antialias: false,
+        alpha: false,
+        preserveDrawingBuffer: true,
+    });
     canvas_ctx.imageSmoothingEnabled = false;
-    ctx = offcanvas.getContext('2d');
+    ctx = offcanvas.getContext('2d', {
+        antialias: false,
+        alpha: false,
+        willReadFrequently: true,
+        preserveDrawingBuffer: true,
+    });
     ctx.imageSmoothingEnabled = false;
-
+    ctx.willReadFrequently = true;
     ctx_pixel = ctx.createImageData(1, 1);
 
     ctx.font = '8px pixelfont';
@@ -87,7 +96,7 @@ function __preload() {
                 canvas_ctx.drawImage(offcanvas, 0, 0);
             });
             if (loaded == total) {
-                __end_preload();
+                window.requestAnimationFrame(__end_preload);
             }
         }
         img.src = 'assets/' + file;
@@ -97,6 +106,7 @@ function __preload() {
 
 function __end_preload() {
     start();
+    canvas_ctx.drawImage(offcanvas, 0, 0);
     window.requestAnimationFrame(__loop);
 }
 
@@ -112,6 +122,8 @@ function __loop(t) {
     mouse.just_left = false;
     mouse.just_middle = false;
     mouse.just_right = false;
+    mouse.prevx = mouse.x;
+    mouse.prevy = mouse.y;
 
     canvas_ctx.drawImage(offcanvas, 0, 0);
 
@@ -157,8 +169,7 @@ function __mouseup(ev) {
 }
 
 function __mousemove(ev) {
-    mouse.prevx = mouse.x;
-    mouse.prevy = mouse.y;
+
     mouse.x = floor((ev.x - canvas.offsetLeft) / SCALE);
     mouse.y = floor((ev.y - canvas.offsetTop) / SCALE);
     mouse.vx = mouse.x - mouse.prevx;
@@ -184,8 +195,8 @@ function set_palette(pal) {
     for (const col of pal) {
         const rgb = hex2rgb(col);
         palette_rgb.push(rgb);
-        palette_rgb_index.push(rgb[0] + rgb[1] + rgb[2]});
-}
+        palette_rgb_index.push(rgb[0] + rgb[1] + rgb[2]);
+    }
 }
 
 function fill_rect(x, y, w, h, color) {
@@ -262,15 +273,59 @@ function draw_sprite(name, x, y) {
     }
     ctx.drawImage(assets[spr.animations[spr.animation].frames[spr.frame]], x - spr.anchor_x, y - spr.anchor_y);
 }
-
 function pset(x, y, color) {
     ctx.fillStyle = palette[color];
     ctx.fillRect(x, y, 1, 1);
 }
 
-
 function pget(x, y) {
     const pixel = ctx.getImageData(x, y, 1, 1).data;
-    const index = pixel[0] + pixel[1] + pixel[2];
-    palette_rgb_index.indexOf(index);
+    const index_key = pixel[0] + pixel[1] + pixel[2];
+    const index = palette_rgb_index.indexOf(index_key);
+    if (index == -1) return 0; else return index;
+}
+
+function draw_line(x1, y1, x2, y2, color) {
+    ctx.strokeStyle = palette[color];
+    // ctx.beginPath();
+    // ctx.moveTo(x1, y1);
+    // ctx.lineTo(x2, y2);
+    // ctx.stroke();
+    bresenham(x1, y1, x2, y2, color);
+}
+
+
+function bresenham(x0, y0, x1, y1, color) {
+    let tmp;
+    let steep = Math.abs(y1 - y0) > Math.abs(x1 - x0);
+    if (steep) {
+        tmp = x0;
+        x0 = y0;
+        y0 = tmp;
+        tmp = x1;
+        x1 = y1;
+        y1 = tmp;
+    }
+
+    let sign = 1;
+    if (x0 > x1) {
+        sign = -1;
+        x0 *= -1;
+        x1 *= -1;
+    }
+
+    let dx = x1 - x0;
+    let dy = Math.abs(y1 - y0);
+    let err = ((dx / 2));
+    let ystep = y0 < y1 ? 1 : -1;
+    let y = y0;
+
+    for (let x = 0; x <= x1; x++) {
+        if (!(steep ? pset(y, sign * x, color) : pset(sign * x, y, color)));
+        err = (err - dy);
+        if (err < 0) {
+            y += ystep;
+            err += dx;
+        }
+    }
 }

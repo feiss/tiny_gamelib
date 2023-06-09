@@ -38,14 +38,24 @@ function start() {
     new_sprite('sonic', {
         'count': { frames: ['sonic0.png', 'sonic1.png', 'sonic2.png', 'sonic3.png'], fps: 25 },
     }, 0.5, 0.5);
+
+    fill_rect(0, 0, W, H, 0);
+    const w = W / palette.length;
+    for (let i = 0; i < palette.length; i++) {
+        fill_rect(i * w, 0, w, 20, i);
+    }
 }
 
+let brush = 1;
+
 function loop(t, dt) {
-    // fill_rect(0, 0, W, H, 0);
-    // const w = W / palette.length;
-    // for (let i = 0; i < palette.length; i++) {
-    //     fill_rect(i * w, 0, w, 2, i);
-    // }
+    if (mouse.just_right) {
+        brush = pget(mouse.x, mouse.y);
+    }
+
+    if (mouse.left && mouse.prevx) {
+        draw_line(mouse.prevx, mouse.prevy, mouse.x, mouse.y, brush);
+    }
 
     // if (mouse.left) {
     //     draw_text(mouse.x + ',' + mouse.y, 10, 20, 6);
@@ -55,9 +65,10 @@ function loop(t, dt) {
     //     draw_sprite('numbers', mouse.x, mouse.y);
     // }
 
-    for (let y = 0; y < H; y++) {
-        for (let x = 0; x < W; x++) {
-            pset(x, y, floor(rnd() * palette.length));
-        }
-    }
+    // noise
+    // for (let y = 0; y < H; y++) {
+    //     for (let x = 0; x < W; x++) {
+    //         pset(x, y, floor(rnd() * palette.length));
+    //     }
+    // }
 }
