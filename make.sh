@@ -62,6 +62,8 @@ const mouse = {
 };
 \`\`\`
 
-\`\`\`js" >> readme.md
-cat src/engine.js | grep -e "^function\s[a-z]" |sed 's/^\(.*\).$/\1;/' >> readme.md
+\`\`\`js
+// \`pal\` is an array with '#rrggbb' colors
+// \`color\` is an integer for the palette index" >> readme.md
+cat src/engine.js | grep -e "^function\s[a-z]" |sed 's/^\(.*\)..$/\1;/' >> readme.md
 echo "\`\`\`" >> readme.md

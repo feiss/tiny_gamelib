@@ -58,18 +58,20 @@ const mouse = {
 ```
 
 ```js
-function set_palette(pal) ;
-function fill_rect(x, y, w, h, color) ;
-function draw_rect(x, y, w, h, color) ;
-function draw_text(text, x, y, color) ;
-function draw_circle(x, y, r, color) ;
-function fill_circle(cx, cy, r, color) ;
-function draw_image(img, x, y) ;
-function new_sprite(name, animations, anchor_x, anchor_y) ;
-function update_sprite(name, dt) ;
-function set_sprite_animation(sprite, animation) ;
-function draw_sprite(name, x, y) ;
-function pset(x, y, color) ;
-function pget(x, y) ;
-function draw_line(x1, y1, x2, y2, color) ;
+// `pal` is an array with '#rrggbb' colors
+// `color` is an integer for the palette index
+function set_palette(pal);
+function fill_rect(x, y, w, h, color);
+function draw_rect(x, y, w, h, color);
+function draw_text(text, x, y, color);
+function draw_circle(x, y, r, color);
+function fill_circle(cx, cy, r, color);
+function draw_image(img, x, y);
+function new_sprite(name, animations, anchor_x, anchor_y);
+function update_sprite(name, dt);
+function set_sprite_animation(sprite, animation);
+function draw_sprite(name, x, y);
+function pset(x, y, color);
+function pget(x, y);
+function draw_line(x1, y1, x2, y2, color);
 ```
