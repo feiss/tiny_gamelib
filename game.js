@@ -44,10 +44,11 @@ function start() {
     // for (let i = 0; i < palette.length; i++) {
     //     fill_rect(i * w, 0, w, 20, i);
     // }
+
+
 }
 
 let brush = 1;
-let radius = 0;
 
 function loop(t, dt) {
     if (mouse.just_right) {
@@ -56,9 +57,9 @@ function loop(t, dt) {
 
 
     // noise
-    for (let x = 0; x < 10000; x++) {
-        pset(floor(rnd() * W), floor(rnd() * H), 0);
-    }
+    // for (let x = 0; x < 10000; x++) {
+    //     pset(floor(rnd() * W), floor(rnd() * H), 0);
+    // }
 
     // noise lines
     // draw_line(floor(rnd() * W), floor(rnd() * H), floor(rnd() * W), floor(rnd() * H), floor(rnd() * palette.length));
@@ -75,17 +76,8 @@ function loop(t, dt) {
         draw_line(mouse.prevx, mouse.prevy - 1, mouse.x, mouse.y - 1, 6);
         draw_line(mouse.prevx - 1, mouse.prevy, mouse.x - 1, mouse.y, 6);
     }
+
     if (mouse.right) {
-        if (mouse.just_right) {
-            radius = 20;
-        } else {
-            radius++;
-        }
-        if (radius < 26) {
-            // draw_rect(mouse.x - radius, mouse.y - radius, radius * 2, radius * 2, 6);
-            draw_circle(mouse.x, mouse.y, radius * 2, floor((radius - 19)));
-        }
+        fill_circle(mouse.x, mouse.y, floor(rnd() * 30), floor(rnd() * 8));
     }
-
-
 }

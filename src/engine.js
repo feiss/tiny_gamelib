@@ -187,7 +187,7 @@ function __mousemove(ev) {
     mouse.vy = mouse.y - mouse.prevy;
 }
 
-function hex2rgb(hex) {
+function __hex2rgb(hex) {
     hex = hex.substr(1);
     if (hex.length === 3) {
         hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
@@ -204,7 +204,7 @@ function set_palette(pal) {
     palette_rgb = [];
     palette_rgb_index = [];
     for (const col of pal) {
-        const rgb = hex2rgb(col);
+        const rgb = __hex2rgb(col);
         palette_rgb.push(rgb);
         palette_rgb_index.push(rgb[0] + rgb[1] + rgb[2]);
     }
@@ -231,6 +231,36 @@ function draw_circle(x, y, r, color) {
         ctx.fillRect(floor(x + Math.cos(a) * r), floor(y + Math.sin(a) * r), 1, 1);
     }
 }
+
+function fill_circle(cx, cy, r, color) {
+    ctx.fillStyle = palette[color];
+    let error = -r;
+    let x = r;
+    let y = 0;
+
+    function __scanline(cx, cy, x, y) {
+        fill_rect(cx - x, cy + y, x * 2, 1);
+        if (y != 0) {
+            fill_rect(cx - x, cy - y, x * 2, 1);
+        }
+    }
+
+    while (x >= y) {
+        let lastY = y;
+        error += y;
+        ++y;
+        error += y;
+        __scanline(cx, cy, x, lastY);
+        if (error >= 0) {
+            if (x != lastY)
+                __scanline(cx, cy, lastY, x);
+            error -= x;
+            --x;
+            error -= x;
+        }
+    }
+}
+
 
 function draw_image(img, x, y) {
     ctx.drawImage(assets[img], x, y);
