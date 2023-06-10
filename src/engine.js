@@ -19,6 +19,9 @@ const W = 320;
 const H = 200;
 const floor = Math.floor;
 const rnd = Math.random;
+const sin = Math.sin;
+const cos = Math.cos;
+const abs = Math.abs;
 
 let assets = {};
 let sprites = {};
@@ -180,7 +183,6 @@ function __mouseup(ev) {
 }
 
 function __mousemove(ev) {
-
     mouse.x = floor((ev.x - canvas.offsetLeft) / SCALE);
     mouse.y = floor((ev.y - canvas.offsetTop) / SCALE);
     mouse.vx = mouse.x - mouse.prevx;
