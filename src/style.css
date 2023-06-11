@@ -12,9 +12,7 @@ body {
 canvas {
     image-rendering: pixelated;
     display: block;
-    width: calc(320px * var(--SCALE));
-    height: calc(200px * var(--SCALE));
-    margin: 0 auto;
+    margin: 10px auto;
 }
 
 
@@ -28,8 +26,27 @@ canvas {
     z-index: 999;
 }
 
+#spriter button {
+    background: #cda964;
+    border-radius: 3px;
+    border: none;
+    padding: 3px 5px;
+    font: 14px 'pixelfont';
+    letter-spacing: -2px;
+    cursor: pointer;
+}
+
+#spriter button:hover {
+    background: #f3ce8a;
+
+}
+
 #spriter .toolbar {
     margin: 10px;
+}
+
+#spriter .toolbar>* {
+    margin-right: 5px;
 }
 
 #spriter .asset_list {

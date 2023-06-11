@@ -21,6 +21,7 @@ class Point {
         this.y = y;
         return this;
     }
+
     static from_angle(a, m) {
         return new Point(cos(a) * m, sin(a) * m);
     }
@@ -30,24 +31,29 @@ class Point {
         this.y = y;
         return this;
     }
+
     clone() {
         return new Point(this.x, this.y);
     }
+
     add(p) {
         this.x += p.x;
         this.y += p.y;
         return this;
     }
+
     sub(p) {
         this.x -= p.x;
         this.y -= p.y;
         return this;
     }
+
     mul(v) {
         this.x *= v;
         this.y *= v;
         return this;
     }
+
     div(v) {
         if (v !== 0) {
             this.x /= v;
@@ -57,9 +63,11 @@ class Point {
             throw new Error("Zero division");
         }
     }
+
     length() {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
+
     clamp(min, max) {
         const m = this.length();
         if (m < min) {
@@ -68,11 +76,13 @@ class Point {
             this.normalize().mul(max);
         }
     }
+
     distance(p) {
         const dx = p.x - this.x;
         const dy = p.y - this.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
+
     angle(p) {
         if (p === undefined) {
             return Math.atan2(this.y, this.x);
@@ -82,9 +92,11 @@ class Point {
             return Math.atan2(dy, dx);
         }
     }
+
     dot(p) {
         return this.x * p.x + this.y * p.y;
     }
+
     cross(p) {
         return this.x * p.y - this.y * p.x;
     }
@@ -94,6 +106,7 @@ class Point {
         const y = this.y + (p.y - this.y) * t;
         return new Point(x, y);
     }
+
     normalize() {
         const m = this.length();
         if (m !== 0) {
@@ -102,6 +115,7 @@ class Point {
         }
         return this;
     }
+
     toString() {
         return this.x + "," + this.y;
     }

@@ -1,18 +1,24 @@
+let spriter;
 
 let $ = q => document.querySelector(q);
 let $$ = q => document.querySelectorAll(q);
-let $new = (el, opts) => {
-    const a = document.createElement(el);
+let $new = (tag, opts) => {
+    const el = document.createElement(tag);
     if (opts) {
-        if (opts['class']) a.className = opts['class'];
-        if (opts['id']) a.id = opts['id'];
+        if (opts['class']) el.className = opts['class'];
+        if (opts['id']) el.id = opts['id'];
+        if (opts['text']) el.textContent = opts['text'];
+
     }
-    return a;
+    return el;
 };
 
 
 window.addEventListener("keydown", ev => {
     if (ev.key == 'Escape') {
+        if (spriter === undefined) {
+            spriter = new Spriter();
+        }
         spriter.toggle();
     }
     if (ev.key == 'F2') {
@@ -21,10 +27,12 @@ window.addEventListener("keydown", ev => {
 });
 
 class Spriter {
-    constructor(assets) {
+    constructor() {
         this.active = false;
         this.brush = 0;
         this.current_asset = null;
+
+        this.canvas = null;
 
         this.el = $new('div');
         this.el.id = 'spriter';
@@ -32,10 +40,19 @@ class Spriter {
         this.asset_list.className = 'asset_list';
 
         const toolbar = $new('div', { class: 'toolbar' });
-        const export_button = $new('button');
-        export_button.textContent = 'EXPORT DATA.DATA (F2)';
-        export_button.addEventListener('click', export_data);
-        toolbar.appendChild(export_button);
+
+        let button = $new('button', { text: 'EXPORT DATA.DATA (F2)' });
+        button.addEventListener('click', export_data);
+        toolbar.appendChild(button);
+
+        button = $new('button', { text: 'NEW ASSET' });
+        button.addEventListener('click', this.#new_asset.bind(this));
+        toolbar.appendChild(button);
+
+        button = $new('button', { text: 'REMOVE ASSET' });
+        button.addEventListener('click', this.#remove_asset.bind(this));
+        toolbar.appendChild(button);
+
         this.el.appendChild(toolbar);
         this.el.appendChild(this.asset_list);
         document.body.appendChild(this.el);
@@ -45,20 +62,43 @@ class Spriter {
         this.refresh_asset_list();
         this.active = !this.active;
         this.el.style.display = this.active ? 'block' : 'none';
+        if (!this.active) {
+            // save backup in localstorage
+            try {
+                localStorage.setItem('data.data', pack_data());
+            } catch (err) {
+                console.error(err);
+            }
+        }
     }
 
     loop(t, dt) {
-        fill_rect(0, 0, W, H, 0);
-        for (let i = 0; i < palette.length; i++) {
-            fill_rect(0, i * 10, 10, 10, i);
-        }
 
-        if (this.current_asset) {
-            draw_image(this.current_asset, 11, 11);
-        }
+        // this.canvas.fill_rect(0, 0, W, H, 0);
+        // for (let i = 0; i < palette.length; i++) {
+        //     this.canvas.fill_rect(0, i * 10, 10, 10, i);
+        // }
 
-        if (mouse.just_right) {
-            this.brush = pget(mouse.x, mouse, y);
+        // if (this.current_asset) {
+        //     this.canvas.draw_image(this.current_asset, 0, 0);
+        //     this.canvas.draw_rect(0, 0, assets[this.current_asset].width, assets[this.current_asset].height, 7);
+        // }
+
+        // const mx = mouse.x + canvas.
+        if (this.canvas) {
+            const mx = floor(((mouse.x * SCALE + canvas.canvas.offsetLeft) - this.canvas.canvas.offsetLeft) / this.canvas.scale);
+            const my = floor(((mouse.y * SCALE + canvas.canvas.offsetTop) - this.canvas.canvas.offsetTop) / this.canvas.scale);
+
+            this.canvas.draw_image(this.current_asset, 0, 0);
+
+            if (mouse.just_right) {
+                this.brush = this.canvas.pget(mx, my);
+            }
+            if (mouse.just_left) {
+                this.canvas.pset(mx, my, this.brush);
+            }
+
+            this.canvas.render();
         }
     }
 
@@ -82,11 +122,29 @@ class Spriter {
         ev.target.classList.add('active');
 
         this.current_asset = ev.target.dataset.file;
+
+        const asset = assets[this.current_asset];
+
+        if (this.canvas) this.canvas.destroy();
+        this.canvas = new Canvas(asset.width, asset.height, 6, $('#spriter_canvas'));
+
+    }
+
+    #new_asset(ev) {
+    }
+
+    #remove_asset(ev) {
+        if (this.current_asset) {
+            const el = this.asset_list.querySelector('.active');
+            if (!el) return;
+            el.parentNode.removeChild(el);
+            delete assets[this.current_asset];
+            this.canvas.destroy();
+        }
     }
 
 }
 
-let spriter = new Spriter();
 
 
 
@@ -119,12 +177,16 @@ dropZone.addEventListener('drop', function (e) {
 });
 
 function export_data() {
+    downloadFile('data.data', pack_data());
+}
+
+function pack_data() {
     const d = {};
     d['assets'] = {};
     for (const a in assets) {
         d['assets'][a] = assets[a].src;
     }
-    downloadFile('data.data', JSON.stringify(d));
+    return JSON.stringify(d);
 }
 
 function downloadFile(filename, data) {
