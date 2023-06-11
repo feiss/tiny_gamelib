@@ -1,0 +1,53 @@
+body {
+    font: 14px 'pixelfont';
+    height: 100vh;
+}
+
+#preload_font {
+    font: 14px 'pixelfont';
+    color: white;
+    display: none;
+}
+
+canvas {
+    image-rendering: pixelated;
+    display: block;
+    width: calc(320px * var(--SCALE));
+    height: calc(200px * var(--SCALE));
+    margin: 0 auto;
+}
+
+
+/* paint editor */
+
+#spriter {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+}
+
+#spriter .toolbar {
+    margin: 10px;
+}
+
+#spriter .asset_list {
+    display: inline-block;
+}
+
+#spriter .asset_list a {
+    display: block;
+    padding: 4px 8px;
+    color: #888;
+    cursor: pointer;
+}
+
+#spriter .asset_list a:hover {
+    color: #fff;
+}
+
+#spriter .asset_list a.active {
+    background-color: #ccc;
+    color: #222;
+}

@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
+
     <style>
         @font-face {
             font-family: 'pixelfont';
@@ -21,27 +22,19 @@
             overflow: hidden;
             padding: 2rem;
         }
-
-        #preload_font {
-            font: 14px 'pixelfont';
-            color: white;
-            display: none;
-        }
-
-        canvas {
-            image-rendering: pixelated;
-            display: block;
-            width: calc(320px * var(--SCALE));
-            height: calc(200px * var(--SCALE));
-            margin: 0 auto;
-        }
     </style>
+    <link rel="stylesheet" href="src/style.css">
 </head>
 
 <body>
     <div id="preload_font">.</div>
     <script src="src/math.js"></script>
+    <!-- <script src="src/storage.js"></script> -->
     <script src="src/engine.js"></script>
+    <script src="src/spriter.js"></script>
+    <!-- <script src="examples/chasers.js"></script> -->
+
+    <!-- Your game goes in game.js -->
     <script src="game.js"></script>
 </body>
 

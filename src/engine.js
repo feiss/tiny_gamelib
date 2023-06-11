@@ -13,7 +13,12 @@ for (const event of ['start', 'loading', 'preload', 'keydown', 'keyup']) {
     if (!window[event]) window[event] = () => { };
 }
 
+
+let assets = {};
+let sprites = {};
 let canvas, canvas_ctx, offcanvas, ctx, ctx_pixel;
+// let storage;
+
 const SCALE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--SCALE'));
 const W = 320;
 const H = 200;
@@ -23,8 +28,6 @@ const sin = Math.sin;
 const cos = Math.cos;
 const abs = Math.abs;
 
-let assets = {};
-let sprites = {};
 
 const keys = {};
 const mouse = {
@@ -47,6 +50,8 @@ const mouse = {
 let palette, palette_rgb, palette_rgb_index;
 
 function __init() {
+    // storage = new DB('tiny_gamelib', 1);
+
     canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
@@ -81,31 +86,42 @@ function __init() {
         '#7FDBFF',
         '#F012BE'
     ]);
-    __preload();
-}
 
-function __preload() {
-    const files = preload();
-    let loaded = 0;
-    let total = files.length;
-
-    for (const file of files) {
-        const img = new Image();
-        assets[file] = img;
-        img.onload = () => {
-            loaded++;
-            window.requestAnimationFrame(() => {
-                loading(loaded / total)
-                canvas_ctx.drawImage(offcanvas, 0, 0);
-            });
-            if (loaded == total) {
-                window.requestAnimationFrame(__end_preload);
-            }
+    fetch('data.data').then(res => res.json()).then(res => {
+        for (const r in res.assets) {
+            const img = new Image();
+            img.src = res.assets[r];
+            assets[r] = img;
         }
-        img.src = 'assets/' + file;
-    }
 
+        window.requestAnimationFrame(__end_preload);
+    });
+
+    // __preload();
 }
+
+// function __preload() {
+//     const files = preload();
+//     let loaded = 0;
+//     let total = files.length;
+
+//     for (const file of files) {
+//         const img = new Image();
+//         assets[file] = img;
+//         img.onload = () => {
+//             loaded++;
+//             window.requestAnimationFrame(() => {
+//                 loading(loaded / total)
+//                 canvas_ctx.drawImage(offcanvas, 0, 0);
+//             });
+//             if (loaded == total) {
+//                 window.requestAnimationFrame(__end_preload);
+//             }
+//         }
+//         img.src = 'assets/' + file;
+//     }
+
+// }
 
 function __end_preload() {
     start();
@@ -123,6 +139,10 @@ function __loop(t) {
     const dt = t - __prev_t;
     __prev_t = t;
 
+    if (spriter.active) {
+        spriter.loop(t / 1000, dt / 1000);
+    }
+    // game loop
     loop(t / 1000, dt / 1000);
 
     mouse.just_left = false;
@@ -138,7 +158,7 @@ function __loop(t) {
     } else {
         canvas_ctx.fillStyle = "#f00";
     }
-    canvas_ctx.fillRect(2, 2, 5, 5);
+    canvas_ctx.fillRect(W - 4, 2, 2, 2);
 
     window.requestAnimationFrame(__loop);
     __frame++;
