@@ -1,3 +1,11 @@
+const rnd = Math.random;
+function rand(n) {
+    return floor(rnd() * n);
+}
+
+function frand(n) {
+    return rnd() * (n || 1);
+}
 
 function distance(x1, y1, x2, y2) {
     const dx = x2 - x1;
@@ -13,6 +21,12 @@ function angle(x1, y1, x2, y2) {
 
 function lerp(a, b, t) {
     return a + (b - a) * t;
+}
+
+function clamp(x, a, b) {
+    if (x < a) x = a;
+    if (x > b) x = b;
+    return x;
 }
 
 class Point {

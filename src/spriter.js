@@ -31,6 +31,7 @@ class Spriter {
         this.active = false;
         this.brush = 0;
         this.current_asset = null;
+        this.current_asset_ctx = null;
 
         this.canvas = null;
 
@@ -79,18 +80,6 @@ class Spriter {
     }
 
     loop(t, dt) {
-
-        // this.canvas.fill_rect(0, 0, W, H, 0);
-        // for (let i = 0; i < palette.length; i++) {
-        //     this.canvas.fill_rect(0, i * 10, 10, 10, i);
-        // }
-
-        // if (this.current_asset) {
-        //     this.canvas.draw_image(this.current_asset, 0, 0);
-        //     this.canvas.draw_rect(0, 0, assets[this.current_asset].width, assets[this.current_asset].height, 7);
-        // }
-
-        // const mx = mouse.x + canvas.
         if (this.canvas) {
             const mx = floor(((mouse.x * SCALE + canvas.canvas.offsetLeft) - this.canvas.canvas.offsetLeft) / this.canvas.scale);
             const my = floor(((mouse.y * SCALE + canvas.canvas.offsetTop) - this.canvas.canvas.offsetTop) / this.canvas.scale);
@@ -99,30 +88,18 @@ class Spriter {
             if (mouse.just_right) {
                 this.brush = this.canvas.pget(mx, my);
             }
-            if (mouse.just_left) {
-                if (this.current_asset) {
-                    // modify the image data of the current asset
-                    const offcanvas = assets[this.current_asset];
-                    const ctx = offcanvas.getContext('2d');
-                    const imageData = ctx.getImageData(0, 0, offcanvas.width, offcanvas.height);
-                    const x = mx;
-                    const y = my;
-                    const index = this.brush;
-                    const color = palette[index];
-                    const r = parseInt(color.slice(1, 3), 16);
-                    const g = parseInt(color.slice(3, 5), 16);
-                    const b = parseInt(color.slice(5, 7), 16);
-                    const i = (y * offcanvas.width + x) * 4;
-                    imageData.data[i] = r;
-                    imageData.data[i + 1] = g;
-                    imageData.data[i + 2] = b;
-                    imageData.data[i + 3] = 255;
-                    ctx.putImageData(imageData, 0, 0);
-
+            if (mouse.left) {
+                if (this.current_asset_ctx) {
+                    const imageData = this.current_asset_ctx.getImageData(mx, my, 1, 1);
+                    const color = palette.get_rgb(this.brush);
+                    imageData.data[0] = color[0];
+                    imageData.data[1] = color[1];
+                    imageData.data[2] = color[2];
+                    imageData.data[3] = 255;
+                    this.current_asset_ctx.putImageData(imageData, mx, my);
                 }
             }
             this.canvas.draw_image(this.current_asset, 0, 0);
-
             this.canvas.render();
         }
     }
@@ -147,12 +124,16 @@ class Spriter {
         ev.target.classList.add('active');
 
         this.current_asset = ev.target.dataset.file;
-
         const asset = assets[this.current_asset];
+        if (!asset) {
+            error("Invalid asset", this.current_asset)
+            return;
+        }
+        this.current_asset_ctx = asset.getContext('2d');
+
 
         if (this.canvas) this.canvas.destroy();
         this.canvas = new Canvas(asset.width, asset.height, 6, $('#spriter_canvas'));
-
     }
 
     #new_asset(ev) {

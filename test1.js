@@ -1,6 +1,5 @@
 function preload() {
-    console.log("preload");
-
+    log("preload");
 }
 
 function loading(progress) {

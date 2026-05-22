@@ -15,16 +15,15 @@ for (const event of ['start', 'loading', 'preload', 'keydown', 'keyup']) {
 
 
 let assets = {};
-let canvas;
+let canvas, palette;
 
 const SCALE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--SCALE'));
 const W = 320;
 const H = 200;
 const floor = Math.floor;
-const rnd = Math.random;
-const log = console.log;
-const warn = console.warn;
-const error = console.error;
+const log = msg => { if (DEBUG) console.log(msg) };
+const warn = msg => { if (DEBUG) console.warn(msg) };
+const error = cmsg => { if (DEBUG) console.error(msg) };
 const sin = Math.sin;
 const cos = Math.cos;
 const abs = Math.abs;
@@ -79,7 +78,8 @@ function __load_data(data, end_preload = false) {
 
 function __init() {
     canvas = new Canvas(320, 200, SCALE);
-    set_palette([
+    palette = new Palette();
+    palette.set_from_hex_array([
         '#FF4136',
         '#FF851B',
         '#FFDC00',
@@ -92,10 +92,10 @@ function __init() {
 
     const data = localStorage.getItem('data.data');
     if (data !== null) {
-        console.log('Loading data from localStorage');
+        log('Loading data from localStorage');
         __load_data(JSON.parse(data), true);
     } else {
-        console.log('Loading data from file');
+        log('Loading data from file');
         fetch('data.data').then(res => res.json()).then(data => {
             __load_data(data, true);
         });
@@ -134,12 +134,14 @@ function __loop(t) {
 
     canvas.render();
 
-    if ((performance.now() - __start_t) / __frame < 17) {
-        canvas.canvas_ctx.fillStyle = "#0f0";
-    } else {
-        canvas.canvas_ctx.fillStyle = "#f00";
+    if (DEBUG) {
+        if ((performance.now() - __start_t) / __frame < 17) {
+            canvas.canvas_ctx.fillStyle = "#0f0";
+        } else {
+            canvas.canvas_ctx.fillStyle = "#f00";
+        }
+        canvas.canvas_ctx.fillRect(W - 4, 2, 2, 2);
     }
-    canvas.canvas_ctx.fillRect(W - 4, 2, 2, 2);
 
     window.requestAnimationFrame(__loop);
     __frame++;
@@ -188,16 +190,4 @@ function __mousemove(ev) {
     mouse.y = floor((ev.y - canvas.canvas.offsetTop) / SCALE);
     mouse.vx = mouse.x - mouse.prevx;
     mouse.vy = mouse.y - mouse.prevy;
-}
-
-function __hex2rgb(hex) {
-    hex = hex.substr(1);
-    if (hex.length === 3) {
-        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-    }
-    const dec = parseInt(hex, 16);
-    const red = (dec >> 16) & 255;
-    const green = (dec >> 8) & 255;
-    const blue = dec & 255;
-    return [red, green, blue];
 }
