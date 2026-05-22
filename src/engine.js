@@ -13,6 +13,7 @@ for (const event of ['start', 'loading', 'preload', 'keydown', 'keyup']) {
     if (!window[event]) window[event] = () => { };
 }
 
+let DEBUG = true;
 
 let assets = {};
 let canvas, palette;

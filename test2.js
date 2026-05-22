@@ -1,4 +1,4 @@
-DEBUG = true; // shows fps, logs, etc.
+DEBUG = false; // shows fps, logs, etc.
 
 
 let dust = [];
@@ -52,7 +52,12 @@ let playing = true;
 
 function game_over() {
     playing = false;
-    canvas.print("GAME OVER", 140, 100, 3);
+    canvas.print("GAME OVER", 138, 100, 3);
+}
+
+function win() {
+    playing = false;
+    canvas.print("YOU MADE IT!!", 135, 100, 3);
 }
 
 
@@ -77,6 +82,10 @@ function loop(t, dt) {
         if (dist < 4) {
             dust.splice(i, 1);
             i--;
+            if (dust.length <= 0) {
+                win();
+                break;
+            }
             continue;
         } else if (dist < hole.radius) {
             d.vx = (hole.x - d.x) * 0.1;
