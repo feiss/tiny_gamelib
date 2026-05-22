@@ -40,10 +40,16 @@ class Spriter {
         this.asset_list.className = 'asset_list';
 
         const toolbar = $new('div', { class: 'toolbar' });
+        let button;
 
-        let button = $new('button', { text: 'EXPORT DATA.DATA (F2)' });
+        button = $new('button', { text: 'EXPORT DATA.DATA (F2)' });
         button.addEventListener('click', export_data);
         toolbar.appendChild(button);
+
+        button = $new('button', { text: 'FORCE RELOAD FROM FILE' });
+        button.addEventListener('click', this.#force_reload_from_file.bind(this));
+        toolbar.appendChild(button);
+
 
         button = $new('button', { text: 'NEW ASSET' });
         button.addEventListener('click', this.#new_asset.bind(this));
@@ -89,14 +95,33 @@ class Spriter {
             const mx = floor(((mouse.x * SCALE + canvas.canvas.offsetLeft) - this.canvas.canvas.offsetLeft) / this.canvas.scale);
             const my = floor(((mouse.y * SCALE + canvas.canvas.offsetTop) - this.canvas.canvas.offsetTop) / this.canvas.scale);
 
-            this.canvas.draw_image(this.current_asset, 0, 0);
 
             if (mouse.just_right) {
                 this.brush = this.canvas.pget(mx, my);
             }
             if (mouse.just_left) {
-                this.canvas.pset(mx, my, this.brush);
+                if (this.current_asset) {
+                    // modify the image data of the current asset
+                    const offcanvas = assets[this.current_asset];
+                    const ctx = offcanvas.getContext('2d');
+                    const imageData = ctx.getImageData(0, 0, offcanvas.width, offcanvas.height);
+                    const x = mx;
+                    const y = my;
+                    const index = this.brush;
+                    const color = palette[index];
+                    const r = parseInt(color.slice(1, 3), 16);
+                    const g = parseInt(color.slice(3, 5), 16);
+                    const b = parseInt(color.slice(5, 7), 16);
+                    const i = (y * offcanvas.width + x) * 4;
+                    imageData.data[i] = r;
+                    imageData.data[i + 1] = g;
+                    imageData.data[i + 2] = b;
+                    imageData.data[i + 3] = 255;
+                    ctx.putImageData(imageData, 0, 0);
+
+                }
             }
+            this.canvas.draw_image(this.current_asset, 0, 0);
 
             this.canvas.render();
         }
@@ -143,6 +168,14 @@ class Spriter {
         }
     }
 
+
+    #force_reload_from_file() {
+        fetch('data.data').then(res => res.json()).then(data => {
+            __load_data(data);
+            this.refresh_asset_list();
+        });
+    }
+
 }
 
 
@@ -184,7 +217,7 @@ function pack_data() {
     const d = {};
     d['assets'] = {};
     for (const a in assets) {
-        d['assets'][a] = assets[a].src;
+        d['assets'][a] = assets[a].toDataURL();
     }
     return JSON.stringify(d);
 }

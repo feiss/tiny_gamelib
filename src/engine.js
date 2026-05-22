@@ -15,7 +15,6 @@ for (const event of ['start', 'loading', 'preload', 'keydown', 'keyup']) {
 
 
 let assets = {};
-let sprites = {};
 let canvas;
 
 const SCALE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--SCALE'));
@@ -23,6 +22,9 @@ const W = 320;
 const H = 200;
 const floor = Math.floor;
 const rnd = Math.random;
+const log = console.log;
+const warn = console.warn;
+const error = console.error;
 const sin = Math.sin;
 const cos = Math.cos;
 const abs = Math.abs;
@@ -45,12 +47,38 @@ const mouse = {
     prevy: 0,
 };
 
+function __create_offscreen_canvas_from_img(img) {
+    const offscreen = document.createElement('canvas');
+    offscreen.width = img.width;
+    offscreen.height = img.height;
+    const ctx = offscreen.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return offscreen;
+}
 
+function __load_data(data, end_preload = false) {
+    assets = {};
+    const num_assets = Object.keys(data.assets).length;
+    let loaded_assets = 0;
+
+    for (const r in data.assets) {
+        const img = new Image();
+        img.src = data.assets[r];
+        img.onload = ev => {
+            loaded_assets++;
+            if (end_preload) {
+                loading(loaded_assets / num_assets);
+            }
+            assets[r] = __create_offscreen_canvas_from_img(ev.target);
+            if (loaded_assets === num_assets && end_preload) {
+                requestAnimationFrame(__end_preload);
+            }
+        }
+    }
+}
 
 function __init() {
-
     canvas = new Canvas(320, 200, SCALE);
-
     set_palette([
         '#FF4136',
         '#FF851B',
@@ -62,29 +90,21 @@ function __init() {
         '#F012BE'
     ]);
 
-
-    function load_data(data) {
-        for (const r in data.assets) {
-            const img = new Image();
-            img.src = data.assets[r];
-            assets[r] = img;
-        }
-
-        window.requestAnimationFrame(__end_preload);
-    }
-
     const data = localStorage.getItem('data.data');
     if (data !== null) {
         console.log('Loading data from localStorage');
-        load_data(JSON.parse(data));
+        __load_data(JSON.parse(data), true);
     } else {
         console.log('Loading data from file');
-        fetch('data.data').then(res => res.json()).then(load_data);
+        fetch('data.data').then(res => res.json()).then(data => {
+            __load_data(data, true);
+        });
     }
 }
 
 
 function __end_preload() {
+    log("preload end");
     start();
     canvas.render();
     window.requestAnimationFrame(__loop);
@@ -100,7 +120,7 @@ function __loop(t) {
     const dt = t - __prev_t;
     __prev_t = t;
 
-    if (spriter && spriter.active) {
+    if (window['spriter'] && spriter.active) {
         spriter.loop(t / 1000, dt / 1000);
     }
     // game loop
@@ -180,66 +200,4 @@ function __hex2rgb(hex) {
     const green = (dec >> 8) & 255;
     const blue = dec & 255;
     return [red, green, blue];
-}
-
-
-function new_sprite(name, animations, anchor_x, anchor_y) {
-    let w, h, animation, fps;
-    for (const anim in animations) {
-        w = assets[animations[anim].frames[0]].width;
-        h = assets[animations[anim].frames[0]].height;
-        animation = anim;
-        fps = animations[anim].fps;
-        break;
-    }
-    anchor_x = anchor_x || 0;
-    anchor_y = anchor_y || 0;
-    fps = fps || 10;
-
-    const spr = {
-        animations: animations,
-        animation: animation,
-        frame: 0,
-        frame_time: 1 / fps,
-        x: 0,
-        y: 0,
-        w: w,
-        h: h,
-        time: 0,
-        anchor_x: floor(anchor_x * w),
-        anchor_y: floor(anchor_y * h),
-    };
-    sprites[name] = spr;
-    return spr;
-}
-
-function update_sprite(name, dt) {
-    const spr = sprites[name];
-    const anim = spr.animations[spr.animation];
-    spr.time += dt;
-    if (spr.time > spr.frame_time) {
-        spr.time = 0;
-        spr.frame++;
-        if (spr.frame == anim.frames.length) {
-            spr.frame = 0;
-        }
-    }
-}
-
-function set_sprite_animation(sprite, animation) {
-    const spr = sprites[sprite];
-    const fps = spr.animations[animation].fps;
-    spr.animation = animation;
-    spr.frame_time = 1 / fps;
-    spr.frame = 0;
-    spr.time = 0;
-}
-
-function draw_sprite(name, x, y) {
-    const spr = sprites[name];
-    if (x === undefined) {
-        x = spr.x;
-        y = spr.y;
-    }
-    ctx.drawImage(assets[spr.animations[spr.animation].frames[spr.frame]], x - spr.anchor_x, y - spr.anchor_y);
 }

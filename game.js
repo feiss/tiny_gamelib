@@ -1,3 +1,12 @@
+function preload() {
+    console.log("preload");
+
+}
+
+function loading(progress) {
+    log(`loading ${floor(progress * 100)}%`);
+}
+
 
 function start() {
     set_palette([
@@ -12,9 +21,11 @@ function start() {
         '#3cf',
         '#ffecd6',
     ]);
-    // new_sprite('sonic', {
-    //     'count': { frames: ['sonic0.png', 'sonic1.png', 'sonic2.png', 'sonic3.png'], fps: 10 },
-    // }, 0.5, 0.5);
+    new_sprite('sonic', {
+        'count': { frames: ['sonic0.png', 'sonic1.png', 'sonic2.png', 'sonic3.png'], fps: 2 },
+    }, 0.5, 0.5);
+
+    set_sprite_animation('sonic', 'count');
 
     canvas.fill_rect(0, 0, W, H, 0);
 }
@@ -23,30 +34,20 @@ function loop(t, dt) {
     loop2(t, dt);
 }
 
-
-
-let brush = 1;
-
 function loop2(t, dt) {
-    if (mouse.just_right) {
-        brush = canvas.pget(mouse.x, mouse.y);
-    }
-
-
     // noise
     for (let x = 0; x < 1500; x++) {
-        canvas.pset(floor(rnd() * 100), floor(rnd() * 30), 0);
+        canvas.pset(floor(rnd() * W), floor(rnd() * H), 0);
     }
 
     // noise lines
-    // draw_line(floor(rnd() * W), floor(rnd() * H), floor(rnd() * W), floor(rnd() * H), floor(rnd() * palette.length));
+    // canvas.draw_line(floor(rnd() * W), floor(rnd() * H), floor(rnd() * W), floor(rnd() * H), floor(rnd() * palette.length));
 
     canvas.draw_text("hola " + mouse.x + ',' + mouse.y, 10, 20, 6);
-    // draw_image('screen.png', mouse.x, mouse.y);
-    // canvas.fill_rect(W / 2 - 50, H / 2 - 50, 100, 100, 0);
-    // update_sprite('sonic', dt);
-    // canvas.draw_sprite('sonic', W / 2, H / 2);
 
+    // set_palette_color(0, `#${floor(rnd() * 0xffffff).toString(16).padStart(6, '0')}`);
+    update_sprite('sonic', dt);
+    canvas.draw_sprite('sonic', mouse.x, mouse.y);
     if (mouse.left && mouse.prevx) {
         canvas.draw_line(mouse.prevx, mouse.prevy, mouse.x, mouse.y, 6);
         canvas.draw_line(mouse.prevx, mouse.prevy - 1, mouse.x, mouse.y - 1, 6);
