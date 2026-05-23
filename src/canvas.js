@@ -204,6 +204,10 @@ class Canvas {
     }
 
     draw_image(img, x, y) {
+        if (!assets[img]) {
+            warn('asset', img, "not found");
+            return;
+        }
         this.ctx.drawImage(assets[img], x, y);
     }
 
