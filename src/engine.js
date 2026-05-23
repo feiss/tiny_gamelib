@@ -48,30 +48,32 @@ const mouse = {
 };
 
 function __create_offscreen_canvas_from_img(img) {
-    const offscreen = document.createElement('canvas');
-    offscreen.width = img.width;
-    offscreen.height = img.height;
+    const offscreen = new OffscreenCanvas(img.width, img.height);
     const ctx = offscreen.getContext('2d');
     ctx.drawImage(img, 0, 0);
     return offscreen;
 }
 
-function __load_data(data, end_preload = false) {
+function __load_data(data, handler) {
     assets = {};
     const num_assets = Object.keys(data.assets).length;
     let loaded_assets = 0;
 
     for (const r in data.assets) {
+        if (!data.assets[r]) {
+            warn("Empty asset", r);
+            continue;
+        }
         const img = new Image();
         img.src = data.assets[r];
         img.onload = ev => {
             loaded_assets++;
-            if (end_preload) {
+            if (handler) {
                 loading(loaded_assets / num_assets);
             }
             assets[r] = __create_offscreen_canvas_from_img(ev.target);
-            if (loaded_assets === num_assets && end_preload) {
-                requestAnimationFrame(__end_preload);
+            if (loaded_assets === num_assets && handler) {
+                requestAnimationFrame(handler);
             }
         }
     }
@@ -94,18 +96,17 @@ function __init() {
     const data = localStorage.getItem('data.data');
     if (data !== null) {
         log('Loading data from localStorage');
-        __load_data(JSON.parse(data), true);
+        __load_data(JSON.parse(data), __end_preload);
     } else {
         log('Loading data from file');
         fetch('data.data').then(res => res.json()).then(data => {
-            __load_data(data, true);
+            __load_data(data, __end_preload);
         });
     }
 }
 
-
 function __end_preload() {
-    log("preload end");
+    log("preload complete");
     start();
     canvas.render();
     window.requestAnimationFrame(__loop);
@@ -121,7 +122,7 @@ function __loop(t) {
     const dt = t - __prev_t;
     __prev_t = t;
 
-    if (window['spriter'] && spriter.active) {
+    if (DEBUG && window['spriter'] && spriter.active) {
         spriter.loop(t / 1000, dt / 1000);
     }
     // game loop

@@ -21,8 +21,13 @@ window.addEventListener("keydown", ev => {
         }
         spriter.toggle();
     }
+    if (spriter === undefined || !spriter.active) return;
+
     if (ev.key == 'F2') {
         export_data();
+    }
+    if ('0123456789'.split('').indexOf(ev.key) !== -1) {
+        spriter.brush = parseInt(ev.key);
     }
 });
 
@@ -65,14 +70,18 @@ class Spriter {
         document.body.appendChild(this.el);
     }
 
-    toggle() {
+    async toggle() {
         this.refresh_asset_list();
         this.active = !this.active;
         this.el.style.display = this.active ? 'block' : 'none';
+        this.el.style.display = this.active ? 'block' : 'none';
         if (!this.active) {
             // save backup in localstorage
+            if (this.canvas) this.canvas.destroy();
+            this.canvas = null;
             try {
-                localStorage.setItem('data.data', pack_data());
+                const data = await pack_data();
+                localStorage.setItem('data.data', data);
             } catch (err) {
                 console.error(err);
             }
@@ -137,6 +146,24 @@ class Spriter {
     }
 
     #new_asset(ev) {
+        let name = prompt("Name?");
+        if (!name || !name.trim()) {
+            return;
+        }
+
+        let size = prompt("Size (wxh)?");
+        if (!size) {
+            return;
+        }
+        size = size.trim().split('x');
+        const w = parseInt(size[0]);
+        const h = parseInt(size[1]);
+        if (!w || !h) {
+            warn(`invalid dimensions ${w}x${h}`);
+        }
+        assets[name] = new OffscreenCanvas(w, h);
+
+        this.refresh_asset_list();
     }
 
     #remove_asset(ev) {
@@ -146,14 +173,15 @@ class Spriter {
             el.parentNode.removeChild(el);
             delete assets[this.current_asset];
             this.canvas.destroy();
+            this.canvas = null;
         }
     }
 
 
     #force_reload_from_file() {
         fetch('data.data').then(res => res.json()).then(data => {
-            __load_data(data);
-            this.refresh_asset_list();
+            __load_data(data, this.refresh_asset_list.bind(this));
+            log("force reloaded from file data.data");
         });
     }
 
@@ -190,18 +218,20 @@ dropZone.addEventListener('drop', function (e) {
     }
 });
 
-function export_data() {
-    downloadFile('data.data', pack_data());
+async function export_data() {
+    const data = await pack_data();
+    downloadFile('data.data', data);
 }
 
-function pack_data() {
-    const d = {};
-    d['assets'] = {};
-    for (const a in assets) {
-        d['assets'][a] = assets[a].toDataURL();
+
+async function pack_data() {
+    const d = { assets: {} };
+    for (const key in assets) {
+        d.assets[key] = await __convertToBase64(assets[key]);
     }
     return JSON.stringify(d);
 }
+
 
 function downloadFile(filename, data) {
     const blob = new Blob([data], { type: 'application/octet-stream' });
@@ -213,4 +243,16 @@ function downloadFile(filename, data) {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+}
+
+
+function __convertToBase64(canvas) {
+    return canvas.convertToBlob().then(blob => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    });
 }

@@ -1,4 +1,4 @@
-DEBUG = false; // shows fps, logs, etc.
+DEBUG = true; // shows fps, logs, etc.
 
 
 let dust = [];
@@ -111,6 +111,6 @@ function loop(t, dt) {
 
     canvas.fill_circle(mouse.x, mouse.y, radius, 1);
     canvas.draw_circle(hole.x, hole.y, hole.radius, any_doomed ? 2 : 1);
-
+    canvas.draw_image("hola", mouse.x - 10, mouse.y - 10);
     canvas.print(dust.length, 150, 10, 3);
 }
