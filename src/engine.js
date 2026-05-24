@@ -116,15 +116,13 @@ function __end_preload() {
 let __frame = 0;
 let __start_t = 0;
 let __prev_t;
+let __paused = false;
 
 function __loop(t) {
     if (!__prev_t) __prev_t = t;
     const dt = t - __prev_t;
     __prev_t = t;
 
-    if (DEBUG && window['spriter'] && spriter.active) {
-        spriter.loop(t / 1000, dt / 1000);
-    }
     // game loop
     loop(t / 1000, dt / 1000);
 
@@ -145,10 +143,15 @@ function __loop(t) {
         canvas.canvas_ctx.fillRect(W - 4, 2, 2, 2);
     }
 
-    window.requestAnimationFrame(__loop);
+    if (!__paused) window.requestAnimationFrame(__loop);
     __frame++;
 }
 
+
+function __pause() {
+    __paused = !__paused;
+    if (!__paused) window.requestAnimationFrame(__loop)
+}
 
 function __resize() {
 }

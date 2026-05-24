@@ -17,6 +17,9 @@ class Palette {
         }
     }
 
+    length() {
+        return this.palette_hex.length;
+    }
 
     get_hex(index) {
         return this.palette_hex[index];
@@ -63,6 +66,15 @@ class Palette {
         );
     }
 
+    copy(src, dest) {
+        this.set_hex(dest, this.get_hex(src));
+    }
+
+    swap(src, dest) {
+        const aux = this.get_hex(src);
+        this.set_hex(src, this.get_hex(dest));
+        this.set_hex(dest, aux);
+    }
 
     closest_index(r, g, b) {
         let closest_index = 0;
@@ -81,6 +93,29 @@ class Palette {
             }
         }
         return closest_index;
+    }
+
+    lerp_color(c1, c2, t) {
+        return [
+            floor(c1[0] + (c2[0] - c1[0]) * t),
+            floor(c1[1] + (c2[1] - c1[1]) * t),
+            floor(c1[2] + (c2[2] - c1[2]) * t)
+        ];
+    }
+
+    make_ramp(aa, bb) {
+        const a = Math.min(aa, bb);
+        const b = Math.max(aa, bb);
+        if (a == b || a == b - 1) return;
+
+        const start = this.palette_rgb[a];
+        const end = this.palette_rgb[b];
+
+        for (let i = a + 1; i < b; i++) {
+            const t = (i - a) / (b - a);
+            const col = this.lerp_color(start, end, t);
+            this.set_rgb(i, col[0], col[1], col[2]);
+        }
     }
 }
 
@@ -147,133 +182,217 @@ class Canvas {
 
     clear(color) {
         this.set_color(color);
-        this.ctx.fillRect(0, 0, this.width, this.height);
+        __ctx_fill_rect(this.ctx, 0, 0, this.width, this.height);
     }
 
     fill_rect(x, y, w, h, color) {
         this.set_color(color);
-        this.ctx.fillRect(x, y, w, h);
+        __ctx_fill_rect(this.ctx, x, y, w, h);
     }
 
     draw_rect(x, y, w, h, color) {
         this.set_color(color);
-        this.ctx.strokeRect(x + 0.5, y + 0.5, w, h);
+        __ctx_draw_rect(this.ctx, x, y, w, h);
     }
 
     print(text, x, y, color) {
         this.set_color(color);
-        this.ctx.fillText(text, x, y);
+        __ctx_print(this.ctx, text, x, y);
     }
 
     draw_circle(x, y, r, color) {
         this.set_color(color);
-        const incr = 1 / r;
-        for (let a = incr; a < Math.PI * 2; a += incr) {
-            this.ctx.fillRect(floor(x + Math.cos(a) * r), floor(y + Math.sin(a) * r), 1, 1);
-        }
+        __ctx_draw_circle(this.ctx, x, y, r, color);
     }
 
     fill_circle(cx, cy, r, color) {
         this.set_color(color);
-        let error = -r;
-        let x = r;
-        let y = 0;
-        let self = this;
-
-        function __scanline(cx, cy, x, y) {
-            self.fill_rect(cx - x, cy + y, x * 2, 1);
-            if (y != 0) {
-                self.fill_rect(cx - x, cy - y, x * 2, 1);
-            }
-        }
-
-        while (x >= y) {
-            let lastY = y;
-            error += y;
-            ++y;
-            error += y;
-            __scanline(cx, cy, x, lastY);
-            if (error >= 0) {
-                if (x != lastY)
-                    __scanline(cx, cy, lastY, x);
-                error -= x;
-                --x;
-                error -= x;
-            }
-        }
+        __ctx_fill_circle(this.ctx, cx, cy, r);
     }
 
     draw_image(img, x, y) {
-        if (!assets[img]) {
-            warn('asset', img, "not found");
-            return;
-        }
-        this.ctx.drawImage(assets[img], x, y);
+        __ctx_draw_image(this.ctx, img, x, y);
     }
 
     draw_sprite(name, x, y) {
-        const spr = sprites[name];
-        if (spr === undefined) {
-            console.warn(`Sprite ${name} not found`);
-            return;
-        }
-
-        if (x === undefined) {
-            x = spr.x;
-            y = spr.y;
-        }
-        const frame = spr.animations[spr.animation].frames[spr.frame];
-        this.draw_image(frame, x - spr.anchor_x, y - spr.anchor_y);
+        __ctx_draw_sprite(this.ctx, name, x, y)
     }
-
 
     pset(x, y, color) {
         this.set_color(color);
-        this.ctx.fillRect(x, y, 1, 1);
+        return __ctx_pset(this.ctx, x, y);
     }
 
     pget(x, y) {
-        const pixel = this.ctx.getImageData(x, y, 1, 1).data;
-        return palette.closest_index(pixel[0], pixel[1], pixel[2])
+        return __ctx_pget(this.ctx, x, y);
     }
 
     draw_line(x1, y1, x2, y2, color) {
         this.set_color(color);
-        let tmp;
-        let steep = Math.abs(y2 - y1) > Math.abs(x2 - x1);
-        if (steep) {
-            tmp = x1;
-            x1 = y1;
-            y1 = tmp;
-            tmp = x2;
-            x2 = y2;
-            y2 = tmp;
+        __ctx_draw_line(this.ctx, x1, y1, x2, y2);
+    }
+}
+
+
+function __ctx_fill_rect(ctx, x, y, w, h) {
+    ctx.fillRect(x, y, w, h);
+}
+
+function __ctx_draw_rect(ctx, x, y, w, h) {
+    ctx.strokeRect(x + 0.5, y + 0.5, w, h);
+}
+
+function __ctx_print(ctx, text, x, y) {
+    ctx.fillText(text, x, y);
+}
+
+function __ctx_draw_circle(ctx, x, y, r) {
+    const incr = 1 / r;
+    for (let a = incr; a < Math.PI * 2; a += incr) {
+        ctx.fillRect(floor(x + Math.cos(a) * r), floor(y + Math.sin(a) * r), 1, 1);
+    }
+}
+
+function __ctx_fill_circle(ctx, cx, cy, r) {
+    let error = -r;
+    let x = r;
+    let y = 0;
+    let self = this;
+
+    function __scanline(cx, cy, x, y) {
+        __ctx_fill_rect(ctx, cx - x, cy + y, x * 2, 1);
+        if (y != 0) {
+            __ctx_fill_rect(ctx, cx - x, cy - y, x * 2, 1);
         }
+    }
 
-        let sign = 1;
-        if (x1 > x2) {
-            sign = -1;
-            x1 *= -1;
-            x2 *= -1;
-        }
-
-        let dx = x2 - x1;
-        let dy = Math.abs(y2 - y1);
-        let err = ((dx / 2));
-        let ystep = y1 < y2 ? 1 : -1;
-        let y = y1;
-
-        for (let x = x1; x <= x2; x++) {
-            if (!(steep ? this.ctx.fillRect(y, sign * x, 1, 1) : this.ctx.fillRect(sign * x, y, 1, 1)));
-            err = (err - dy);
-            if (err < 0) {
-                y += ystep;
-                err += dx;
-            }
+    while (x >= y) {
+        let lastY = y;
+        error += y;
+        ++y;
+        error += y;
+        __scanline(cx, cy, x, lastY);
+        if (error >= 0) {
+            if (x != lastY)
+                __scanline(cx, cy, lastY, x);
+            error -= x;
+            --x;
+            error -= x;
         }
     }
 }
 
+function __ctx_draw_image(ctx, img, x, y) {
+    if (!assets[img]) {
+        warn('asset', img, "not found");
+        return;
+    }
+    ctx.drawImage(assets[img], x, y);
+}
+
+function __ctx_draw_sprite(ctx, name, x, y) {
+    const spr = sprites[name];
+    if (spr === undefined) {
+        console.warn(`Sprite ${name} not found`);
+        return;
+    }
+
+    if (x === undefined) {
+        x = spr.x;
+        y = spr.y;
+    }
+    const frame = spr.animations[spr.animation].frames[spr.frame];
+    __ctx_draw_image(ctx, frame, x - spr.anchor_x, y - spr.anchor_y);
+}
+
+
+function __ctx_pset(ctx, x, y) {
+    ctx.fillRect(x, y, 1, 1);
+}
+
+function __ctx_pget(ctx, x, y) {
+    const pixel = ctx.getImageData(x, y, 1, 1).data;
+    return palette.closest_index(pixel[0], pixel[1], pixel[2])
+}
+
+function __ctx_draw_line(ctx, x1, y1, x2, y2) {
+    let tmp;
+    let steep = Math.abs(y2 - y1) > Math.abs(x2 - x1);
+    if (steep) {
+        tmp = x1;
+        x1 = y1;
+        y1 = tmp;
+        tmp = x2;
+        x2 = y2;
+        y2 = tmp;
+    }
+
+    let sign = 1;
+    if (x1 > x2) {
+        sign = -1;
+        x1 *= -1;
+        x2 *= -1;
+    }
+
+    let dx = x2 - x1;
+    let dy = Math.abs(y2 - y1);
+    let err = ((dx / 2));
+    let ystep = y1 < y2 ? 1 : -1;
+    let y = y1;
+
+    for (let x = x1; x <= x2; x++) {
+        if (!(steep ? ctx.fillRect(y, sign * x, 1, 1) : ctx.fillRect(sign * x, y, 1, 1)));
+        err = (err - dy);
+        if (err < 0) {
+            y += ystep;
+            err += dx;
+        }
+    }
+}
+
+function __ctx_flip(ctx, horizontal = true) {
+    ctx.save();
+    if (horizontal) {
+        ctx.scale(-1, 1);
+        ctx.drawImage(ctx.canvas, 0, 0, -ctx.canvas.width, ctx.canvas.height);
+    } else {
+        ctx.scale(1, -1);
+        ctx.drawImage(ctx.canvas, 0, 0, ctx.canvas.width, -ctx.canvas.height);
+    }
+    ctx.restore();
+}
+
+function __ctx_offset(ctx, x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.drawImage(ctx.canvas, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.restore();
+}
+
+function __ctx_clone(source) {
+    const source_canvas = source.constructor.name == "OffscreenCanvas" ? source : source.canvas;
+    const source_ctx = source.constructor.name == "OffscreenCanvas" ? source.getContext('2d') : source;
+
+    const duplicate = new OffscreenCanvas(source_canvas.width, source_canvas.height);
+    duplicate.getContext("2d").drawImage(source_canvas.transferToImageBitmap(), 0, 0);
+    return duplicate;
+}
+
+function __ctx_copy(source, dest, resize_dest) {
+    log(dest.constructor.name)
+    const dest_canvas = dest.constructor.name == "OffscreenCanvas" ? dest : dest.canvas;
+    const dest_ctx = dest.constructor.name == "OffscreenCanvas" ? dest.getContext('2d') : dest;
+    const source_canvas = source.constructor.name == "OffscreenCanvas" ? source : source.canvas;
+    if (resize_dest) {
+        dest_canvas.width = source_canvas.width;
+        dest_canvas.height = source_canvas.height;
+    }
+    dest_ctx.drawImage(source_canvas, 0, 0);
+}
+
+/////////////////////
+//  S P R I T E S  //
+/////////////////////
 
 let sprites = {};
 

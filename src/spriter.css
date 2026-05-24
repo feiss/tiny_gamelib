@@ -1,0 +1,160 @@
+        @font-face {
+            font-family: 'pixelfont';
+            src: url('./Silkscreen-Regular.ttf') format('truetype');
+        }
+
+        body {
+            font: 10px 'pixelfont';
+        }
+
+        #preload_font {
+            font: 10px 'pixelfont';
+            color: white;
+            display: none;
+        }
+
+        #spriter {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            width: 100%;
+        }
+
+        #spriter button,
+        #canvas_editor button {
+            background: #e3c163;
+            border-radius: 3px;
+            border: none;
+            padding: 2px 5px;
+            font: 12px 'pixelfont';
+            letter-spacing: -2px;
+            cursor: pointer;
+            margin-left: 2px;
+            min-width: 20px;
+            margin-bottom: 5px;
+        }
+
+        #spriter button:hover {
+            background: #f3e0bd;
+        }
+
+        #spriter button:active {
+            background-color: #9d8352;
+        }
+
+        #spriter .toolbar {
+            margin: 10px;
+        }
+
+        #spriter .toolbar>* {
+            margin-right: 5px;
+        }
+
+        #spriter>div {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        #spriter .asset_list {
+            display: inline-block;
+            flex: 0 0 auto;
+            font: 10px 'pixelfont';
+            background-color: rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        #spriter .asset_list a {
+            display: block;
+            padding: 2px 18px 2px 8px;
+            color: #c1c1c1;
+            cursor: pointer;
+        }
+
+        #spriter .asset_list a:hover {
+            color: #fff5bc;
+        }
+
+        #spriter .asset_list a.active {
+            background-color: #e3c163;
+            color: #222;
+        }
+
+        #canvas_editor {
+            text-align: center;
+            z-index: 1200;
+            flex: 1 0 auto;
+        }
+
+        #canvas_editor canvas {
+            padding: 1px;
+            background-color: #139c7c;
+            display: block;
+            margin: 10px auto;
+            cursor: crosshair;
+        }
+
+        #canvas_editor .tools {
+            padding-top: 4px;
+        }
+
+        #canvas_editor button {
+            background-color: #139c7c;
+        }
+
+        #canvas_editor button:hover {
+            background-color: #32cda9;
+        }
+
+        #canvas_editor button:active {
+            background-color: #25816b;
+        }
+
+        #canvas_editor .pal {
+            background-color: #222;
+            padding: 5px;
+        }
+
+        #canvas_editor .pal button {
+            height: 15px;
+            width: 15px;
+            border-radius: 0;
+            border: 1px solid #333;
+        }
+
+        #canvas_editor .pal button.fgcolor {
+            border-top: 2px solid white;
+        }
+
+        #canvas_editor .pal button.bgcolor {
+            border-bottom: 2px solid white;
+        }
+
+        .right_panel {
+            padding-right: 15px;
+            text-align: right;
+            display: inline-block;
+            flex: 0 0 auto;
+            font: 10px 'pixelfont';
+            background-color: rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            line-height: 30px;
+        }
+
+
+        #spriter .right_panel button:disabled {
+            background-color: #35332f !important;
+            cursor: default;
+        }
+
+        #spriter .right_panel span {
+            font: 12px 'pixelfont';
+            padding: 0 4px;
+            color: #998765;
+        }

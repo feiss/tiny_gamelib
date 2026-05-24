@@ -8,11 +8,6 @@
     <title>Game</title>
 
     <style>
-        @font-face {
-            font-family: 'pixelfont';
-            src: url('assets/Silkscreen-Regular.ttf') format('truetype');
-        }
-
         :root {
             --SCALE: 3;
         }
@@ -21,17 +16,24 @@
             background-color: black;
             overflow: hidden;
             padding: 2rem;
+            height: 100vh;
+        }
+
+        canvas {
+            image-rendering: pixelated;
+            display: block;
+            margin: 10px auto;
         }
     </style>
-    <link rel="stylesheet" href="src/style.css">
+    <link rel="stylesheet" href="src/spriter.css">
 </head>
 
 <body>
-    <div id="spriter_canvas"></div>
     <div id="preload_font">.</div>
     <script src="src/math.js"></script>
     <script src="src/canvas.js"></script>
     <script src="src/engine.js"></script>
+
     <script src="src/spriter.js"></script>
 
     <!-- the actual game -->
